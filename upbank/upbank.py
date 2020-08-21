@@ -7,9 +7,10 @@ api = "https://api.up.com.au/api/v1"
 
 class Endpoint:
     endpoint = None
-    def __init__(self, endpoint):
+    def __init__(self, endpoint, get=True):
         self.endpoint = endpoint
-        self.data = self.get()
+        if get:
+            self.data = self.get()
 
     def get(self, *args, **kwargs):
         if not self.endpoint:
@@ -18,6 +19,33 @@ class Endpoint:
             kwargs["headers"] = {}
         kwargs["headers"]["Authorization"] = "Bearer " + environ.get("UP_TOKEN")
         return requests.get(api + self.endpoint, *args, **kwargs).json()
+
+class Webhooks(Endpoint):
+    endpoint = "/webhooks"
+    def __init__(self):
+        self.data = self.get()
+        self.webhooks = [Webhook(d) for d in self.data["data"]]
+    def __getitem__(self,key):
+        return self.webhooks[key]
+    def __repr__(self):
+        return f"{self.webhooks}"
+
+class Webhook:
+    def __init__(self, data):
+        self.data = data
+        self.id = data["id"]
+        attributes = data["attributes"]
+        self.url = attributes["url"]
+        self.createdAt = attributes["createdAt"]
+    def __repr__(self):
+        return f"<{self.url}>"
+    @property
+    def ping(self):
+        kwargs = {}
+        if not kwargs.get("headers"):
+            kwargs["headers"] = {}
+        kwargs["headers"]["Authorization"] = "Bearer " + environ.get("UP_TOKEN")
+        return bool(requests.post(api + f"/webhooks/{self.id}/ping", **kwargs))
 
 class Ping(Endpoint):
     endpoint = "/util/ping"
@@ -32,7 +60,7 @@ class Accounts(Endpoint):
     def __getitem__(self,key):
         return self.accounts[key]
     def __repr__(self):
-        return f"<{self.accounts}>"
+        return f"{self.accounts}"
 
 class Account:
     def __init__(self, data):
@@ -75,7 +103,7 @@ class Transactions(Endpoint):
     def __getitem__(self,key):
         return self.transactions[key]
     def __repr__(self):
-        return f"<{self.transactions}>"
+        return f"{self.transactions}"
 
 class Transaction:
     def __init__(self, data):

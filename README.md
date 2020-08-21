@@ -17,3 +17,9 @@ Set the environment variable UP\_TOKEN with your personal access token from http
 >>> print(transactions[0])
 <Merchant: AUD-10.55 2020-07-27T22:37:26+10:00>
 ```
+
+Todo
+----
+* Webhook creation and log retrieval
+  * Creating a test server to receive json requests? (probably out of scope)
+* Creating and retrieving the data for atomic objects (transactions, accounts, webhooks) by ID
