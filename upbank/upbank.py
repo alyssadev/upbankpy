@@ -39,13 +39,18 @@ class Webhook:
         self.createdAt = attributes["createdAt"]
     def __repr__(self):
         return f"<{self.url}>"
-    @property
     def ping(self):
         kwargs = {}
         if not kwargs.get("headers"):
             kwargs["headers"] = {}
         kwargs["headers"]["Authorization"] = "Bearer " + environ.get("UP_TOKEN")
         return bool(requests.post(api + f"/webhooks/{self.id}/ping", **kwargs))
+    def delete(self):
+        kwargs = {}
+        if not kwargs.get("headers"):
+            kwargs["headers"] = {}
+        kwargs["headers"]["Authorization"] = "Bearer " + environ.get("UP_TOKEN")
+        return bool(requests.delete(api + f"/webhooks/{self.id}", **kwargs))
 
 class Ping(Endpoint):
     endpoint = "/util/ping"
