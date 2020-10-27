@@ -66,6 +66,8 @@ class Accounts(Endpoint):
         return self.accounts[key]
     def __repr__(self):
         return f"{self.accounts}"
+    def total(self):
+        return sum(a.balance.value for a in self.accounts)
 
 class Account:
     def __init__(self, data):
@@ -109,6 +111,8 @@ class Transactions(Endpoint):
         return self.transactions[key]
     def __repr__(self):
         return f"{self.transactions}"
+    def total(self):
+        return sum(t.amount.value for t in self.transactions)
 
 class Transaction:
     def __init__(self, data):
@@ -120,8 +124,10 @@ class Transaction:
         self.description = attributes["description"]
         self.message = attributes["message"]
         # TODO: need separate class for HoldInfo and RoundUp?
-        self.holdInfo = Balance(attributes["holdInfo"]["amount"])
-        self.roundUp = Balance(attributes["roundUp"]["amount"])
+        if "holdInfo" in attributes and attributes["holdInfo"] is not None:
+            self.holdInfo = Balance(attributes["holdInfo"]["amount"])
+        if "roundUp" in attributes and attributes["roundUp"] is not None:
+            self.roundUp = Balance(attributes["roundUp"]["amount"])
         self.cashback = attributes["cashback"]
         self.amount = Balance(attributes["amount"])
         self.foreignAmount = Balance(attributes["foreignAmount"])
